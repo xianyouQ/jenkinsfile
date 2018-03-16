@@ -6,7 +6,7 @@ node() {
     }
     dir('source'){
         // clean source dir
-        deleteDir()
+        //deleteDir()
         // source code
         git url: 'https://github.com/xianyouQ/renren-security.git', branch: "${branch}"
     }

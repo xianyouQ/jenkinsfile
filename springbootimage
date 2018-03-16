@@ -25,8 +25,8 @@ node() {
     
        writeFile encoding: 'utf-8', file: 'Dockerfile', text: """
 FROM  harbor.youxian.com/springboot/jdk:8u131-2
-RUN test -d /home/youxian/webapps/ || install -m 777 /home/youxian/webapps
-ADD lib /home/youxian/webapps/
+RUN test -d /home/youxian/webapps/lib || install -d /home/youxian/webapps/lib
+ADD lib/* /home/youxian/webapps/lib/
 """
         sh "cat Dockerfile "
         Tag = "$version"
