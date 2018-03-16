@@ -22,11 +22,15 @@ node() {
        // clean output
        deleteDir()
        sh "mv ../source/$libPath lib"
-    
+       sh "cp ../source/startup.sh"
        writeFile encoding: 'utf-8', file: 'Dockerfile', text: """
 FROM  harbor.youxian.com/springboot/jdk:8u131-2
 RUN test -d /home/youxian/webapps/lib || install -d /home/youxian/webapps/lib
+RUN test -d /home/youxian/webapps/bin || install -d /home/youxian/webapps/bin
+ADD startup.sh /home/youxian/webapps/bin/
+RUN chmod 777 /home/youxian/webapps/bin/startup.sh
 ADD lib/* /home/youxian/webapps/lib/
+CMD /home/youxian/webapps/bin/startup.sh
 """
         sh "cat Dockerfile "
         Tag = "$version"

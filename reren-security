@@ -58,7 +58,7 @@ node() {
        sh "cp ../jenkinsfile/baseJar.list ."
        sh "cp ../source/${buildfile} $Filename"
        sh "mv  ../source/${libpath} lib"
-       sh "for jar in `ls lib`; do grep ${jar} baseJar.list >> /dev/null;if [ $? -eq 0 ];then rm -f lib/${jar};fi ;done"
+       sh 'for jar in `ls lib`; do grep ${jar} baseJar.list && rm -f lib/${jar} || echo ${jar};done'
        // set properties
        writeFile encoding: 'utf-8', file: 'env.properties', text: """
 POOL_CODE=$poolcode
@@ -68,17 +68,19 @@ APP_CONTEXT=$context
        //add env.properties and disconf.properties to jar
        def javaHome = tool name: 'jdk8', type: 'jdk'
        sh "${javaHome}/bin/jar -uf $Filename env.properties"
-       sh "rm -fr  env.properties"
+       sh "rm -fr  env.properties baseJar.list"
        sh "mv $Filename lib/"
        sh 'ls '
        sh "rm -f Dockerfile"
        writeFile encoding: 'utf-8', file: 'Dockerfile', text: """
+ENV MAIN_CLASS @MAIN_CLASS@
+
 FROM  harbor.youxian.com/springboot/base:${springbootversion}
-RUN test -d /home/youxian/webapps || install -m 777 /home/youxian/webapps
-ADD lib/* /home/youxian/webapps/lib
-CMD /usr/local/jdk8/bin/java -cp /home/youxian/webapps/lib/*.jar -Dloader.main=${mainclass} org.springframework.boot.loader.PropertiesLauncher
+RUN test -d /home/youxian/webapps || install -d /home/youxian/webapps
+ADD lib/* /home/youxian/webapps/lib/
 EXPOSE 8080
 """
+       sh "sed -i 's/@MAIN_CLASS@/'$mainclass'/g' Dockerfile
        sh "cat Dockerfile "
 
        // set properties to spinnaker
@@ -94,9 +96,9 @@ buildUser=$Username
 """
     }
     // share output
-    stash name: 'share_output', includes: "output/*"
+    stash name: 'share_output', includes: "output/**"
     // Archive the build output artifacts.
-    archiveArtifacts artifacts: "output/*"
+    archiveArtifacts artifacts: "output/**"
     
 }
 
