@@ -30,7 +30,6 @@ RUN test -d /home/youxian/webapps/bin || install -d /home/youxian/webapps/bin
 ADD startup.sh /home/youxian/webapps/bin/
 RUN chmod 777 /home/youxian/webapps/bin/startup.sh
 ADD lib/* /home/youxian/webapps/lib/
-CMD /home/youxian/webapps/bin/startup.sh
 """
         sh "cat Dockerfile "
         Tag = "$version"
