@@ -80,7 +80,7 @@ RUN test -d /home/youxian/webapps || install -d /home/youxian/webapps
 ADD lib/* /home/youxian/webapps/lib/
 EXPOSE 8080
 """
-       sh "sed -i 's/@MAIN_CLASS@/'$mainclass'/g' Dockerfile
+       sh "sed -i 's/@MAIN_CLASS@/'$mainclass'/g' Dockerfile"
        sh "cat Dockerfile "
 
        // set properties to spinnaker
