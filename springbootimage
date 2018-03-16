@@ -8,7 +8,7 @@ node() {
             Username = env.BUILD_USER_ID
         }
         libPath = "target/dependency"
-        version = ${version}
+        version = "${version}"
         echo "buildUser:$Username"
         echo "springboot version:$version"
         
