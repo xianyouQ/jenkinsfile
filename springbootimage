@@ -1,0 +1,42 @@
+node() {
+    stage 'Checkout'
+    dir('source'){
+        deleteDir()
+        git url: 'https://github.com/xianyouQ/jenkinsfile.git'
+        stage 'Chkconfig'
+        wrap([$class: 'BuildUser']) {
+            Username = env.BUILD_USER_ID
+        }
+        libPath = "target/dependency"
+        version = ${version}
+        echo "buildUser:$Username"
+        echo "springboot version:$version"
+        
+        stage 'Building'
+        def mvnHome = tool name: 'maven', type: 'maven'
+        sh "${mvnHome}/bin/mvn -f pom.xml clean dependency:copy-dependencies"
+    }
+    stage "Archive"
+    // Make the output directory.
+    dir('output'){
+       // clean output
+       deleteDir()
+       sh "mv ../source/$libPath lib"
+    
+       writeFile encoding: 'utf-8', file: 'Dockerfile', text: """
+FROM  harbor.youxian.com/springboot/jdk:8u131-2
+RUN test -d /home/youxian/webapps/ || install -m 777 /home/youxian/webapps
+ADD lib /home/youxian/webapps/
+"""
+        sh "cat Dockerfile "
+        Tag = "$version"
+        Image = "harbor.youxian.com/springboot/base"
+        // docker build and push
+        sh "docker build -t $Image:$Tag -f Dockerfile ."
+        sh "docker push $Image:$Tag "
+        // clearn docker image
+        sh "docker image ls"
+        sh "docker image rm -f $Image:$Tag "
+    }
+    
+}
