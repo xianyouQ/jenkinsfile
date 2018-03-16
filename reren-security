@@ -73,9 +73,8 @@ APP_CONTEXT=$context
        sh 'ls '
        sh "rm -f Dockerfile"
        writeFile encoding: 'utf-8', file: 'Dockerfile', text: """
-ENV MAIN_CLASS @MAIN_CLASS@
-
 FROM  harbor.youxian.com/springboot/base:${springbootversion}
+ENV MAIN_CLASS @MAIN_CLASS@
 RUN test -d /home/youxian/webapps || install -d /home/youxian/webapps
 ADD lib/* /home/youxian/webapps/lib/
 EXPOSE 8080
