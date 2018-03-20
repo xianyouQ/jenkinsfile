@@ -1,0 +1,44 @@
+node("docker") {
+    stage 'Checkout'
+    dir('dockerfile'){
+        // clean dockerfile dir
+        deleteDir()
+        git url: 'https://github.com/xianyouQ/jenkinsfile.git'
+    }
+    dir('source'){
+        // clean source dir
+        deleteDir()
+        // source code
+        dir("code") {
+            git url: 'https://github.com/getsentry/sentry.git', branch: "refs/tags/$version"
+        }
+        stage 'Chkconfig'
+        poolcode = "${poolcode}"
+        buildversion = "${BUILD_TIMESTAMP}-${BUILD_NUMBER}"
+        //default output file 
+        buildfile = "activity-svc/target/activitysvc.war"
+        //archive file name
+        Filename = "${context}-${version}-${buildversion}.war"
+        // set build username
+        wrap([$class: 'BuildUser']) {
+            Username = env.BUILD_USER_ID
+        }
+        echo "poolCode:$poolcode"
+        echo "appType:$apptype"
+        echo "version:$version"
+        echo "context:$context"
+        echo "branch:$branch"
+        echo "buildVersion:$buildversion"
+        echo "envType:$envtype"
+
+        if (params.platform == null ){
+           platform= "vmdocker"
+        }
+        echo "buildUser:$Username"
+        
+        stage 'Building'
+        sh "docker build -t harbor.youxian.com/library/sentry:$version -f ../dockerfile/sentry/Dockerfile ."
+        sh "docker push harbor.youxian.com/library/sentry:$version"
+        sh "docker image ls"
+        sh "docker image rm -f $Image:$Tag "
+    }
